@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import petsData from "../petsData";
 import { Navigate, useParams } from "react-router-dom";
 import Home from "./Home";
+import { deletePet, getPet, updatePet } from "../api/pets";
+import { useQuery } from "@tanstack/react-query";
 const PetDetail = () => {
   const { petId } = useParams();
-  const pet = petsData.find((pet) => pet.id == petId);
+
+  // const [pet, setPet] = useState([]);
+
+  // const callApi = async () => {
+  //   const res = await getPet(petId);
+  //   setPet(res);
+  // };
+
+  // useEffect(() => {
+  //   callApi();
+  // }, []);
+
+  const { data: pet } = useQuery({
+    queryKey: [`pet`],
+    queryFn: () => getPet(petId),
+  });
+
+  // const pet = petsData.find((pet) => pet.id == petId);
   if (!pet) {
     return <h1>There is no pet with the id:{`${petId}`} </h1>;
   }
@@ -23,11 +42,19 @@ const PetDetail = () => {
           <h1>Type: {pet.type}</h1>
           <h1>adopted: {pet.adopted}</h1>
 
-          <button className="w-[70px] border border-black rounded-md  hover:bg-green-400 mb-5">
+          <button
+            className="w-[70px] border border-black rounded-md  hover:bg-green-400 mb-5"
+            onClick={() => {
+              updatePet(pet.name, pet.type, pet.image, petId);
+            }}
+          >
             Adobt
           </button>
 
-          <button className="w-[70px] border border-black rounded-md  hover:bg-red-400">
+          <button
+            className="w-[70px] border border-black rounded-md  hover:bg-red-400"
+            onClick={() => deletePet(petId)}
+          >
             Delete
           </button>
         </div>

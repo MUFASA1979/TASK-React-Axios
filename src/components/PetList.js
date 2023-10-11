@@ -1,14 +1,33 @@
-import React, { useState, useSyncExternalStore } from "react";
+import React, { useEffect, useState } from "react";
 import petsData from "../petsData";
 import PetItem from "./PetItem";
 import Modal from "./Modal";
+import { getAllPets, getPet } from "../api/pets";
+import { useQuery } from "@tanstack/react-query";
 
 const PetList = () => {
   const [query, setQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
+  // const [pets, setPets] = useState([]);
+  // const [isLoading, setIsLoading] = useState(true);
 
-  const petList = petsData
-    .filter((pet) => pet.name.toLowerCase().includes(query.toLowerCase()))
+  // const callApi = async () => {
+  //   const res = await getAllPets();
+  //   setPets(res);
+  //   setIsLoading(false);
+  // };
+
+  // useEffect(() => {
+  //   callApi();
+  // }, []);
+
+  const { data: pets, isLoading } = useQuery({
+    queryKey: [`pets`],
+    queryFn: () => getAllPets(),
+  });
+
+  const petList = pets
+    ?.filter((pet) => pet.name.toLowerCase().includes(query.toLowerCase()))
     .map((pet) => <PetItem pet={pet} key={pet.id} />);
   return (
     <>
@@ -32,6 +51,13 @@ const PetList = () => {
         </div>
         <div className=" flex flex-col flex-wrap md:flex-row gap-[20px] w-[76vw]  justify-center items-center mb-[50px]">
           {petList}
+          {isLoading && <h1>Loading.......</h1>}
+          {/* <div>
+            <input placeholder="Name"> </input>
+            <input placeholder="Type"> </input>
+            <input placeholder="Image"> </input>
+            <input placeholder="Adopted"> </input>
+          </div> */}
         </div>
       </div>
       <Modal show={showModal} setShowModal={setShowModal} />
